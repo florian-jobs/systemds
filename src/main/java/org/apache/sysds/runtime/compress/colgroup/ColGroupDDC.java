@@ -73,10 +73,16 @@ import org.jboss.netty.handler.codec.compression.CompressionException;
 public class ColGroupDDC extends APreAgg implements IMapToDataGroup {
 	private static final long serialVersionUID = -5769772089913918987L;
 
+	// saves for every row an index into dictionary
+	// e.g. one column [10,20,10,30,20]^T. then _dict saves the unique values:
+	// _dict.getValues = [10,20,30] and _data saves per row, which _dict entry
+	// was used: _data = [0,1,0,2,1]
 	protected final AMapToData _data;
 
+	// used for vector optimization
 	static final VectorSpecies<Double> SPECIES = DoubleVector.SPECIES_PREFERRED;
 
+	// private constructor. calls super(...), saves data, runs consistency checks. e.g. data not empty.
 	private ColGroupDDC(IColIndex colIndexes, IDictionary dict, AMapToData data, int[] cachedCounts) {
 		super(colIndexes, dict, cachedCounts);
 		_data = data;
@@ -97,6 +103,8 @@ public class ColGroupDDC extends APreAgg implements IMapToDataGroup {
 		}
 	}
 
+	// public constructor. calls create(...) to create ColGroupDDC object. if data.getUnique() == 1 creates ColGroupConst,
+	// with only one tuple. if dict == null creates ColGroupEmpty.
 	public static AColGroup create(IColIndex colIndexes, IDictionary dict, AMapToData data, int[] cachedCounts) {
 		if(data.getUnique() == 1)
 			return ColGroupConst.create(colIndexes, dict);
@@ -111,7 +119,7 @@ public class ColGroupDDC extends APreAgg implements IMapToDataGroup {
 	}
 
 	public CompressionType getCompType() {
-		return CompressionType.DDC;
+		return CompressionType.DDCLZW;
 	}
 
 	@Override
