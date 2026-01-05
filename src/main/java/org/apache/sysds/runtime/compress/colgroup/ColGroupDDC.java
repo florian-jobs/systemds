@@ -119,7 +119,7 @@ public class ColGroupDDC extends APreAgg implements IMapToDataGroup {
 	}
 
 	public CompressionType getCompType() {
-		return CompressionType.DDCLZW;
+		return CompressionType.DDC;
 	}
 
 	@Override
